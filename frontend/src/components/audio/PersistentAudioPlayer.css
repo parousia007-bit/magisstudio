@@ -1,0 +1,644 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PersistentAudioPlayer.css
+   Glassmorphism container + Neumorphic controls + Analog EQ faders
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Base player (docked, fixed to bottom) ──────────────────────────────────── */
+.player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--glass-border);
+  transition: height var(--transition-mid), box-shadow var(--transition-mid);
+}
+
+.player--with-eq {
+  /* EQ panel expands height; let content drive it */
+  height: auto;
+}
+
+.player--minimized {
+  height: 4px;
+  overflow: hidden;
+}
+.player--minimized .player__body,
+.player--minimized .player__progress,
+.player--minimized .eq-panel {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Ghost shell: keeps <audio> in DOM when floating */
+.player--ghost {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+  border: none;
+  background: none;
+}
+
+/* ─── Idle state ─────────────────────────────────────────────────────────────── */
+.player--idle {
+  height: 48px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.player__idle-icon {
+  color: var(--color-amber);
+  font-size: 14px;
+  animation: vu-pulse 2s ease-in-out infinite;
+}
+.player__idle-msg {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+/* ─── Progress bar ───────────────────────────────────────────────────────────── */
+.player__progress {
+  flex-shrink: 0;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0 0 2px;
+}
+.player__progress-track {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: var(--color-mist);
+  transition: height var(--transition-fast);
+}
+.player__progress:hover .player__progress-track { height: 3px; }
+
+.player__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-amber), var(--color-cyan));
+  box-shadow: 0 0 8px var(--color-amber-glow);
+  transition: width 0.1s linear;
+}
+.player__progress-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--color-amber);
+  box-shadow: 0 0 6px var(--color-amber);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+.player__progress:hover .player__progress-thumb { opacity: 1; }
+
+/* ─── Body grid ──────────────────────────────────────────────────────────────── */
+.player__body {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 8px clamp(12px, 3vw, 32px);
+  gap: 16px;
+  min-height: 66px;
+}
+
+/* ─── Track info ─────────────────────────────────────────────────────────────── */
+.player__info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.player__artwork {
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--color-slate);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+.player__artwork img { width: 100%; height: 100%; object-fit: cover; }
+.player__artwork-placeholder { font-size: 18px; color: var(--text-tertiary); }
+
+.player__artwork-pulse {
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--radius-sm) + 2px);
+  border: 1px solid var(--color-amber);
+  animation: vu-pulse 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* EQ hint on hover */
+.player__artwork-eq-hint {
+  position: absolute;
+  inset: 0;
+  background: rgba(8,8,16,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--color-amber);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+.player__artwork:hover .player__artwork-eq-hint { opacity: 1; }
+
+.player__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.player__title {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+.player__artist {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player__quality-badge { flex-shrink: 0; }
+
+/* ─── Transport controls (Neumorphic) ────────────────────────────────────────── */
+.player__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.player__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--neu-bg);
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 50%;
+  font-family: var(--font-body);
+  transition:
+    box-shadow var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+/* Sizes */
+.player__btn           { width: 34px; height: 34px; box-shadow: var(--neu-raised-sm); }
+.player__btn--sm       { width: 28px; height: 28px; box-shadow: var(--neu-raised-sm); }
+.player__btn--xs       { width: 24px; height: 24px; box-shadow: var(--neu-raised-sm); }
+
+.player__btn:hover     { color: var(--text-primary); box-shadow: var(--neu-raised); transform: translateY(-1px); }
+.player__btn:active    { box-shadow: var(--neu-inset-sm); transform: translateY(0); }
+.player__btn.is-active { color: var(--color-amber); }
+
+/* Play/Pause flagship */
+.player__btn--play {
+  width: 48px; height: 48px;
+  background: linear-gradient(145deg, var(--neu-shadow-light), var(--neu-shadow-dark));
+  box-shadow: 5px 5px 12px var(--neu-shadow-dark), -5px -5px 12px var(--neu-shadow-light);
+  color: var(--text-primary);
+}
+.player__btn--play:hover {
+  color: var(--color-amber);
+  box-shadow: 6px 6px 15px var(--neu-shadow-dark), -6px -6px 15px var(--neu-shadow-light), 0 0 16px var(--color-amber-glow);
+}
+.player__btn--play:active  { box-shadow: var(--neu-inset); transform: none; }
+.player__btn--play.is-playing {
+  color: var(--color-amber);
+  box-shadow: 5px 5px 12px var(--neu-shadow-dark), -5px -5px 12px var(--neu-shadow-light), 0 0 22px var(--color-amber-glow);
+}
+
+/* ─── Secondary: time + volume ───────────────────────────────────────────────── */
+.player__secondary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.player__time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* Volume */
+.player__volume { display: flex; align-items: center; gap: 6px; }
+.player__volume-track {
+  position: relative;
+  width: 72px; height: 20px;
+  display: flex;
+  align-items: center;
+}
+.player__volume-slider {
+  position: relative;
+  width: 100%; height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 2;
+}
+.player__volume-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--color-mist);
+  border-radius: 2px;
+  box-shadow: var(--neu-inset-sm);
+}
+.player__volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--neu-bg);
+  box-shadow: var(--neu-raised-sm);
+  cursor: pointer;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+.player__volume-slider::-webkit-slider-thumb:hover {
+  box-shadow: var(--neu-raised), 0 0 6px var(--color-amber-glow);
+  transform: scale(1.2);
+}
+.player__volume-fill {
+  position: absolute;
+  left: 0; height: 4px;
+  background: linear-gradient(90deg, var(--color-amber), var(--color-cyan));
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow: 0 0 5px var(--color-amber-glow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FLOAT MODE
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.player--float {
+  position: fixed;
+  z-index: 1100;
+  bottom: auto; left: auto; right: auto;
+  width: 480px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--glass-border-amber);
+  box-shadow:
+    0 32px 80px rgba(0,0,0,0.7),
+    0 0 40px var(--color-amber-glow),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  overflow: hidden;
+  transition: box-shadow var(--transition-mid);
+  /* No bottom/left/right — position driven by JS inline style */
+}
+
+.player--float:hover {
+  box-shadow:
+    0 36px 90px rgba(0,0,0,0.75),
+    0 0 50px rgba(232, 168, 66, 0.2),
+    inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+.player--float-eq { width: 520px; }
+
+/* Drag handle */
+.player__drag-handle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 6px;
+  background: var(--glass-bg-light);
+  border-bottom: 1px solid var(--glass-border);
+  cursor: grab;
+  user-select: none;
+}
+.player__drag-handle:active { cursor: grabbing; }
+
+.player__drag-dots {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  letter-spacing: -2px;
+  line-height: 1;
+}
+.player__drag-label {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-amber);
+  opacity: 0.7;
+  flex: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   EQ PANEL — 10-Band Parametric Equalizer
+   Analog console fader aesthetic
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.eq-panel {
+  border-top: 1px solid var(--glass-border);
+  background: linear-gradient(180deg, var(--color-midnight) 0%, var(--color-console) 100%);
+  padding: 12px 16px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle panel scanline texture */
+.eq-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.08) 3px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+}
+
+/* Header */
+.eq-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.eq-panel__title {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-amber);
+  opacity: 0.7;
+}
+.eq-panel__actions {
+  display: flex;
+  gap: 6px;
+}
+.eq-panel__btn {
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--color-mist);
+  background: var(--neu-bg);
+  color: var(--text-tertiary);
+  box-shadow: var(--neu-raised-sm);
+  transition: color var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+.eq-panel__btn:hover {
+  color: var(--text-primary);
+  box-shadow: var(--neu-raised);
+}
+.eq-panel__btn:active   { box-shadow: var(--neu-inset-sm); }
+.eq-panel__btn.is-on    {
+  color: var(--color-amber);
+  border-color: rgba(232,168,66,0.4);
+  box-shadow: var(--neu-raised-sm), 0 0 8px var(--color-amber-glow);
+}
+
+/* ─── Fader rail ─────────────────────────────────────────────────────────────── */
+.eq-faders {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  justify-content: space-between;
+  height: 120px;
+  padding: 0 4px;
+  position: relative;
+}
+
+/* Each band column */
+.eq-band {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  height: 100%;
+  position: relative;
+}
+
+/* dB readout above fader */
+.eq-band__db {
+  font-size: 8px;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  line-height: 1;
+  min-height: 12px;
+  transition: color var(--transition-fast);
+  text-align: center;
+}
+.eq-band__db.is-boost { color: var(--color-amber); }
+.eq-band__db.is-cut   { color: var(--color-cyan);  }
+
+/* Fader track wrapper */
+.eq-band__fader-wrap {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 0 dB center line */
+.eq-band__zero-line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 1px;
+  background: var(--color-mist);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Visual fill (boost/cut indicator) */
+.eq-band__fill {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 1;
+  min-height: 2px;
+  transition: height 0.08s linear, background var(--transition-fast);
+}
+.eq-band__fill.is-boost {
+  background: linear-gradient(to top, var(--color-amber), rgba(232,168,66,0.4));
+  box-shadow: 0 0 4px var(--color-amber-glow);
+}
+.eq-band__fill.is-cut {
+  background: linear-gradient(to bottom, var(--color-cyan), rgba(78,205,196,0.4));
+  box-shadow: 0 0 4px var(--color-cyan-glow);
+}
+
+/* ─── Vertical range input — the actual fader ────────────────────────────────── */
+.eq-fader {
+  /* Native vertical slider via writing-mode trick for cross-browser */
+  -webkit-appearance: slider-vertical;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 20px;
+  height: 100%;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  outline: none;
+}
+
+/* Firefox vertical */
+.eq-fader {
+  appearance: slider-vertical;
+}
+
+/* Track — the groove the fader slides in */
+.eq-fader::-webkit-slider-runnable-track {
+  width: 4px;
+  background: var(--neu-bg);
+  border-radius: 2px;
+  box-shadow:
+    inset 1px 1px 3px var(--neu-shadow-dark),
+    inset -1px -1px 2px var(--neu-shadow-light);
+}
+.eq-fader::-moz-range-track {
+  width: 4px;
+  background: var(--neu-bg);
+  border-radius: 2px;
+  box-shadow: var(--neu-inset-sm);
+}
+
+/* Thumb — the fader cap itself (Neumorphic) */
+.eq-fader::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 28px;
+  border-radius: 4px;
+  background: linear-gradient(
+    180deg,
+    var(--neu-shadow-light) 0%,
+    var(--neu-bg)           40%,
+    var(--neu-bg)           60%,
+    var(--neu-shadow-dark)  100%
+  );
+  box-shadow:
+    2px 2px 6px var(--neu-shadow-dark),
+    -2px -2px 4px var(--neu-shadow-light),
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    inset 0 -1px 0 rgba(0,0,0,0.2);
+  cursor: grab;
+  transition: box-shadow var(--transition-fast), background var(--transition-fast);
+  position: relative;
+}
+
+/* Fader cap center stripe (analog console detail) */
+.eq-fader::-webkit-slider-thumb::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 1.5px;
+  background: var(--color-amber);
+  border-radius: 1px;
+  opacity: 0.6;
+}
+
+.eq-fader::-webkit-slider-thumb:hover {
+  box-shadow:
+    3px 3px 8px var(--neu-shadow-dark),
+    -3px -3px 6px var(--neu-shadow-light),
+    0 0 10px var(--color-amber-glow);
+  cursor: grabbing;
+}
+.eq-fader::-webkit-slider-thumb:active {
+  box-shadow: var(--neu-inset-sm);
+  cursor: grabbing;
+}
+
+/* Firefox thumb */
+.eq-fader::-moz-range-thumb {
+  width: 18px;
+  height: 28px;
+  border-radius: 4px;
+  background: var(--neu-bg);
+  box-shadow: var(--neu-raised-sm);
+  border: none;
+  cursor: grab;
+}
+
+/* Disabled state (EQ bypassed) */
+.eq-fader:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.eq-fader:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Frequency label below fader */
+.eq-band__label {
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1;
+  min-height: 10px;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .player__body {
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+  .player__secondary { display: none; }
+  .player__quality-badge { display: none; }
+  .player__btn--sm { display: none; }
+
+  /* Float window adapts to screen */
+  .player--float { width: calc(100vw - 24px); }
+  .player--float-eq { width: calc(100vw - 24px); }
+
+  /* Compact EQ on mobile */
+  .eq-faders { height: 90px; gap: 0; }
+  .eq-band__db { font-size: 7px; }
+  .eq-band__label { font-size: 7px; }
+}
+
+@media (max-width: 480px) {
+  /* Show only 5 bands on very small screens */
+  .eq-band:nth-child(even) { display: none; }
+}
