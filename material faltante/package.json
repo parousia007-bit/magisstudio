@@ -1,0 +1,19 @@
+{
+  "name": "magis-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Magis Studio — High-End Audio Gear Review & Hi-Fi Music Platform",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "build": "npm run build --workspace=frontend",
+    "start": "npm run start --workspace=backend",
+    "lint": "concurrently \"npm run lint --workspace=frontend\" \"npm run lint --workspace=backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
