@@ -1,52 +1,13 @@
-# ─── render.yaml ─────────────────────────────────────────────────────────────
-# Render Blueprint — deploys frontend (static site) + backend (web service)
-
 services:
-  # ── Backend API ─────────────────────────────────────────────────────────────
   - type: web
     name: magis-studio-api
-    runtime: node
-    rootDir: backend
+    env: node
+    rootDir: backend # <--- Importante: le dice a Render dónde está el código
     buildCommand: npm install
-    startCommand: node src/server.js
-    healthCheckPath: /api/health
+    startCommand: node index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 5000
-      - key: MONGO_URI
-        sync: false   # Set in Render dashboard
-      - key: JWT_SECRET
-        generateValue: true
-      - key: JWT_REFRESH_SECRET
-        generateValue: true
-      - key: JWT_EXPIRES_IN
-        value: 7d
-      - key: JWT_REFRESH_EXPIRES_IN
-        value: 30d
-      - key: CLOUDINARY_CLOUD_NAME
-        sync: false
-      - key: CLOUDINARY_API_KEY
-        sync: false
-      - key: CLOUDINARY_API_SECRET
-        sync: false
-      - key: CLIENT_URL
-        sync: false   # Set to your frontend URL
-
-  # ── Frontend Static Site ──────────────────────────────────────────────────
-  - type: web
-    name: magis-studio-frontend
-    runtime: static
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_URL
-        sync: false   # Set to your backend API URL
-      - key: VITE_APP_NAME
-        value: Magis Studio
+      - fromGroup: magis-secrets # Usaremos un grupo para las llaves
