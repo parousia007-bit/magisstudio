@@ -642,3 +642,80 @@
   /* Show only 5 bands on very small screens */
   .eq-band:nth-child(even) { display: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MOBILE "BOTTOM SHEET" (Spotify Style)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.mobile-expand-handle {
+  display: none;
+  justify-content: center;
+  padding: 10px 0 20px 0;
+  cursor: pointer;
+  width: 100%;
+}
+.mobile-expand-bar {
+  width: 40px; height: 5px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+}
+
+@media (max-width: 768px) {
+  /* Elimina tu regla anterior que ocultaba el EQ nth-child(even) */
+  .eq-band:nth-child(even) { display: flex !important; }
+
+  .mobile-expand-handle { display: flex; }
+
+  .player {
+    bottom: 0 !important; left: 0 !important; right: 0 !important;
+    width: 100% !important;
+    border-radius: 20px 20px 0 0;
+    transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.3s ease;
+    background: rgba(15, 15, 20, 0.95);
+    backdrop-filter: blur(25px);
+  }
+
+  /* ─── MODO MINI (Píldora inferior) ─── */
+  .player.is-mobile-mini {
+    height: 70px !important;
+    padding: 0 10px;
+  }
+  .player.is-mobile-mini .player__body {
+    display: flex; padding: 0; height: 100%; align-items: center; min-height: auto;
+  }
+  .player.is-mobile-mini .player__progress,
+  .player.is-mobile-mini .player__secondary,
+  .player.is-mobile-mini .eq-panel,
+  .player.is-mobile-mini .player__btn--sm,
+  .player.is-mobile-mini .player__controls .player__btn:not(.player__btn--play) {
+    display: none;
+  }
+  .player.is-mobile-mini .player__info { flex: 1; cursor: pointer; }
+  .player.is-mobile-mini .player__artwork { width: 45px; height: 45px; }
+
+  /* ─── MODO EXPANDIDO (Pantalla completa) ─── */
+  .player.is-mobile-expanded {
+    height: 85vh !important;
+    padding: 10px 20px;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .player.is-mobile-expanded .player__body {
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .player.is-mobile-expanded .player__info { flex-direction: column; text-align: center; }
+  .player.is-mobile-expanded .player__artwork { width: 60vw; height: 60vw; max-width: 300px; max-height: 300px; margin: 0 auto; border-radius: 16px; }
+  .player.is-mobile-expanded .player__controls { justify-content: center; width: 100%; gap: 20px; }
+  .player.is-mobile-expanded .player__btn--play { width: 64px; height: 64px; }
+  
+  .player.is-mobile-expanded .player__secondary {
+    display: flex; flex-direction: column; width: 100%; gap: 20px; align-items: stretch;
+  }
+  .player.is-mobile-expanded .player__volume { justify-content: space-between; width: 100%; }
+  .player.is-mobile-expanded .player__volume-track { flex: 1; margin-left: 10px; }
+  
+  /* Mostrar todas las bandas de EQ en scroll horizontal */
+  .eq-faders {
+    overflow-x: auto; padding-bottom: 10px; justify-content: flex-start; gap: 15px;
+  }
+  .eq-band { min-width: 35px; }
+}
