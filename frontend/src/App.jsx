@@ -12,6 +12,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
 
+// Importación de la nueva Red Social
+import SocialFeedPage from './pages/social/SocialFeedPage';
+
 import { AudioPlayerProvider } from './context/AudioPlayerContext';
 import { AuthProvider } from './context/AuthContext';
 
@@ -39,6 +42,10 @@ export default function App() {
                 <Route path="gear/:slug" element={<GearDetailPage />} />
                 <Route path="laboratorio" element={<LaboratorioSonoro />} />
                 <Route path="descargas" element={<BovedaDescargasPage />} />
+                
+                {/* 🚀 Nueva Ruta Social */}
+                <Route path="social" element={<SocialFeedPage />} />
+                
                 <Route path="login" element={<LoginPage />} />
                 <Route path="registro" element={<RegisterPage />} />
                 <Route path="*" element={<NotFoundPage />} />
