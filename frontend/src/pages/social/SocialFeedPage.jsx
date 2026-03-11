@@ -4,7 +4,6 @@ import { useFeed, useStories } from '../../hooks/useSocial';
 import PostCard from '../../components/social/PostCard';
 import StoriesBar from '../../components/social/StoriesBar';
 import CreatePostModal from '../../components/social/CreatePostModal';
-// import NotificationBell from '../../components/social/NotificationBell';
 
 import './social.css';
 
@@ -22,7 +21,6 @@ export default function SocialFeedPage() {
           <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
             + Publicar
           </button>
-          {/* <NotificationBell /> */}
         </div>
       </header>
 
