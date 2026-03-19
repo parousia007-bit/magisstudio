@@ -503,7 +503,6 @@
 /* ─── Vertical range input — the actual fader ────────────────────────────────── */
 .eq-fader {
   /* Native vertical slider via writing-mode trick for cross-browser */
-  -webkit-appearance: slider-vertical;
   writing-mode: vertical-lr;
   direction: rtl;
   width: 20px;
@@ -514,11 +513,6 @@
   position: relative;
   z-index: 2;
   outline: none;
-}
-
-/* Firefox vertical */
-.eq-fader {
-  appearance: slider-vertical;
 }
 
 /* Track — the groove the fader slides in */

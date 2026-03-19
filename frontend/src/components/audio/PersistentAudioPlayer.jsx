@@ -46,6 +46,12 @@ export default function PersistentAudioPlayer() {
     if (!audio || audioCtxRef.current) return;
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     audioCtxRef.current = ctx;
+
+    // Auto-resume logic inside graph initialization if needed
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+
     const source = ctx.createMediaElementSource(audio);
     sourceRef.current = source;
     const filters = EQ_BANDS.map((band) => {
@@ -60,8 +66,12 @@ export default function PersistentAudioPlayer() {
   }, [audioRef]);
 
   const resumeCtx = useCallback(() => {
-    if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume();
-  }, []);
+    if (audioCtxRef.current?.state === 'suspended') {
+      audioCtxRef.current.resume().catch(() => {});
+    } else if (!audioCtxRef.current) {
+      initAudioGraph();
+    }
+  }, [initAudioGraph]);
 
   useEffect(() => {
     const audio = audioRef.current; if (!audio) return;
@@ -88,10 +98,14 @@ export default function PersistentAudioPlayer() {
     const audio = audioRef.current; if (!audio || !currentTrack) return;
     const src = currentTrack.files?.mp3_320?.url || currentTrack.files?.flac?.url || currentTrack.streamUrl || '';
     if (src && audio.src !== src) {
-      audio.src = src; audio.load(); initAudioGraph();
-      if (isPlaying) audio.play().catch(() => {});
+      audio.src = src; audio.load();
+      // Do not initAudioGraph here to prevent autoplay issues without user gesture
+      if (isPlaying) {
+        resumeCtx();
+        audio.play().catch(() => {});
+      }
     }
-  }, [currentTrack]);
+  }, [currentTrack, isPlaying, resumeCtx]);
 
   useEffect(() => {
     const v = isMuted ? 0 : volume;

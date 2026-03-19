@@ -8,6 +8,8 @@ import './StoriesBar.css';
 export default function StoriesBar({ groups, currentUser }) {
   const [active, setActive]       = useState(null); // { groupIdx, storyIdx }
   const [progress, setProgress]   = useState(0);
+
+  if (!groups || groups.length === 0) return null;
   const qc = useQueryClient();
 
   const openStory = (gIdx, sIdx = 0) => {
@@ -47,9 +49,9 @@ export default function StoriesBar({ groups, currentUser }) {
     <>
       {/* ── Stories thumbnails row ───────────────────────────────────────── */}
       <div className="stories-bar" role="list" aria-label="Stories">
-        {groups.map((group, i) => (
+        {(groups || []).map((group, i) => (
           <button
-            key={group.author._id}
+            key={group?.author?._id || i}
             className={`story-thumb ${group.hasUnseen ? 'has-unseen' : 'is-seen'}`}
             onClick={() => openStory(i)}
             role="listitem"
@@ -57,13 +59,13 @@ export default function StoriesBar({ groups, currentUser }) {
           >
             <div className="story-thumb__ring">
               <div className="story-thumb__avatar">
-                {group.author.avatar?.url
+                {group?.author?.avatar?.url
                   ? <img src={group.author.avatar.url} alt={group.author.username} />
-                  : <span>{group.author.username[0].toUpperCase()}</span>
+                  : <span>{group?.author?.username?.[0]?.toUpperCase()}</span>
                 }
               </div>
             </div>
-            <span className="story-thumb__name font-mono">{group.author.username}</span>
+            <span className="story-thumb__name font-mono">{group?.author?.username}</span>
           </button>
         ))}
       </div>
